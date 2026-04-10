@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RideWave — Your City, Your Speed</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ===================== TOAST NOTIFICATION ===================== -->
+<div id="toast" class="toast hidden">
+  <i class="fa-solid fa-circle-check toast-icon"></i>
+  <span id="toastMsg"></span>
+</div>
+
+<!-- ===================== LOADING OVERLAY ===================== -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="spinner-wrap">
+    <div class="spinner"></div>
+    <p id="loadingText">Processing...</p>
+  </div>
+</div>
+
+<!-- ===================== AUTH SECTION ===================== -->
+<section id="authSection" class="auth-section">
+  <div class="auth-brand">
+    <div class="brand-logo"><i class="fa-solid fa-bolt"></i></div>
+    <h1 class="brand-name">RideWave</h1>
+    <p class="brand-tagline">Your city. Your speed.</p>
+    <!-- Decorative blobs -->
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+  </div>
+
+  <div class="auth-card">
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+      <button class="auth-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="auth-form" novalidate>
+      <h2>Welcome back</h2>
+      <p class="form-sub">Sign in to continue your journey</p>
+
+      <div class="input-group">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email" />
+      </div>
+      <span class="field-error" id="loginEmailErr"></span>
+
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" />
+        <i class="fa-solid fa-eye toggle-pw" onclick="togglePw('loginPassword', this)"></i>
+      </div>
+      <span class="field-error" id="loginPasswordErr"></span>
+
+      <!-- Role selection -->
+      <div class="role-select">
+        <label class="role-option">
+          <input type="radio" name="loginRole" value="user" checked />
+          <span><i class="fa-solid fa-user"></i> Rider</span>
+        </label>
+        <label class="role-option">
+          <input type="radio" name="loginRole" value="driver" />
+          <span><i class="fa-solid fa-car"></i> Driver</span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary btn-full">
+        <span>Sign In</span><i class="fa-solid fa-arrow-right"></i>
+      </button>
+
+      <p class="demo-hint"><i class="fa-solid fa-circle-info"></i> Use any email & password (6+ chars) to demo</p>
+    </form>
+
+    <!-- Signup Form -->
+    <form id="signupForm" class="auth-form hidden" novalidate>
+      <h2>Create account</h2>
+      <p class="form-sub">Join thousands of happy riders</p>
+
+      <div class="input-group">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="signupName" placeholder="Full name" autocomplete="name" />
+      </div>
+      <span class="field-error" id="signupNameErr"></span>
+
+      <div class="input-group">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="signupEmail" placeholder="Email address" autocomplete="email" />
+      </div>
+      <span class="field-error" id="signupEmailErr"></span>
+
+      <div class="input-group">
+        <i class="fa-solid fa-phone"></i>
+        <input type="tel" id="signupPhone" placeholder="Phone number" autocomplete="tel" />
+      </div>
+      <span class="field-error" id="signupPhoneErr"></span>
+
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="signupPassword" placeholder="Password (min 6 chars)" />
+        <i class="fa-solid fa-eye toggle-pw" onclick="togglePw('signupPassword', this)"></i>
+      </div>
+      <span class="field-error" id="signupPasswordErr"></span>
+
+      <div class="input-group">
+        <i class="fa-solid fa-shield-halved"></i>
+        <input type="password" id="signupConfirm" placeholder="Confirm password" />
+      </div>
+      <span class="field-error" id="signupConfirmErr"></span>
+
+      <div class="role-select">
+        <label class="role-option">
+          <input type="radio" name="signupRole" value="user" checked />
+          <span><i class="fa-solid fa-user"></i> Rider</span>
+        </label>
+        <label class="role-option">
+          <input type="radio" name="signupRole" value="driver" />
+          <span><i class="fa-solid fa-car"></i> Driver</span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary btn-full">
+        <span>Create Account</span><i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- ===================== USER DASHBOARD ===================== -->
+<section id="userDashboard" class="dashboard hidden">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <i class="fa-solid fa-bolt"></i>
+      <span>RideWave</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" onclick="showPage('bookRide')" id="navBook">
+        <i class="fa-solid fa-map-location-dot"></i><span>Book</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('rideHistory')" id="navHistory">
+        <i class="fa-solid fa-clock-rotate-left"></i><span>History</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('userProfile')" id="navProfile">
+        <i class="fa-solid fa-circle-user"></i><span>Profile</span>
+      </button>
+    </div>
+    <button class="btn-logout" onclick="logout()">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </button>
+  </nav>
+
+  <!-- ---- BOOK RIDE PAGE ---- -->
+  <div id="bookRide" class="page active">
+    <div class="page-header">
+      <div>
+        <h2>Book a Ride</h2>
+        <p id="userGreeting" class="greeting"></p>
+      </div>
+      <div class="weather-badge"><i class="fa-solid fa-sun"></i> Great day to ride!</div>
+    </div>
+
+    <div class="book-grid">
+      <!-- Left: Form -->
+      <div class="book-form-card card">
+        <h3><i class="fa-solid fa-route"></i> Where are you going?</h3>
+
+        <div class="location-inputs">
+          <div class="loc-dot loc-dot--pickup"></div>
+          <div class="loc-line"></div>
+          <div class="loc-dot loc-dot--drop"></div>
+
+          <div class="loc-fields">
+            <div class="input-group">
+              <i class="fa-solid fa-location-dot" style="color:var(--primary)"></i>
+              <input type="text" id="pickup" placeholder="Pickup location" oninput="updateFareEstimate()" />
+            </div>
+            <span class="field-error" id="pickupErr"></span>
+
+            <div class="input-group">
+              <i class="fa-solid fa-flag-checkered" style="color:var(--secondary)"></i>
+              <input type="text" id="drop" placeholder="Drop-off location" oninput="updateFareEstimate()" />
+            </div>
+            <span class="field-error" id="dropErr"></span>
+          </div>
+        </div>
+
+        <!-- Quick locations -->
+        <div class="quick-locs">
+          <p class="section-label">Quick picks</p>
+          <div class="quick-btns">
+            <button class="quick-btn" onclick="fillLocation('pickup', 'Connaught Place, Delhi')">
+              <i class="fa-solid fa-building-columns"></i> CP Delhi
+            </button>
+            <button class="quick-btn" onclick="fillLocation('pickup', 'Sector 18, Noida')">
+              <i class="fa-solid fa-shop"></i> Sec 18
+            </button>
+            <button class="quick-btn" onclick="fillLocation('drop', 'Indira Gandhi Airport')">
+              <i class="fa-solid fa-plane-departure"></i> Airport
+            </button>
+            <button class="quick-btn" onclick="fillLocation('drop', 'Huda City Centre, Gurugram')">
+              <i class="fa-solid fa-train-subway"></i> Huda City
+            </button>
+          </div>
+        </div>
+
+        <!-- Ride type selection -->
+        <p class="section-label">Choose ride type</p>
+        <div class="ride-types" id="rideTypes">
+          <div class="ride-type-card selected" data-type="bike" onclick="selectRideType(this)">
+            <i class="fa-solid fa-motorcycle"></i>
+            <span class="rt-name">Bike</span>
+            <span class="rt-price" id="bikeFare">₹--</span>
+            <span class="rt-time">2 min away</span>
+          </div>
+          <div class="ride-type-card" data-type="auto" onclick="selectRideType(this)">
+            <i class="fa-solid fa-taxi"></i>
+            <span class="rt-name">Auto</span>
+            <span class="rt-price" id="autoFare">₹--</span>
+            <span class="rt-time">4 min away</span>
+          </div>
+          <div class="ride-type-card" data-type="cab" onclick="selectRideType(this)">
+            <i class="fa-solid fa-car-side"></i>
+            <span class="rt-name">Cab</span>
+            <span class="rt-price" id="cabFare">₹--</span>
+            <span class="rt-time">6 min away</span>
+          </div>
+          <div class="ride-type-card" data-type="premium" onclick="selectRideType(this)">
+            <i class="fa-solid fa-star"></i>
+            <span class="rt-name">Premium</span>
+            <span class="rt-price" id="premiumFare">₹--</span>
+            <span class="rt-time">8 min away</span>
+          </div>
+        </div>
+
+        <!-- Payment method -->
+        <p class="section-label">Payment</p>
+        <div class="payment-opts">
+          <label class="payment-opt">
+            <input type="radio" name="payment" value="cash" checked />
+            <span><i class="fa-solid fa-money-bill-wave"></i> Cash</span>
+          </label>
+          <label class="payment-opt">
+            <input type="radio" name="payment" value="upi" />
+            <span><i class="fa-solid fa-mobile-screen"></i> UPI</span>
+          </label>
+          <label class="payment-opt">
+            <input type="radio" name="payment" value="card" />
+            <span><i class="fa-regular fa-credit-card"></i> Card</span>
+          </label>
+        </div>
+
+        <button class="btn-primary btn-full btn-book" id="bookBtn" onclick="openConfirmModal()">
+          <i class="fa-solid fa-bolt"></i> Book Now
+        </button>
+      </div>
+
+      <!-- Right: Map placeholder + live stats -->
+      <div class="map-side">
+        <div class="map-card card">
+          <div class="map-placeholder">
+            <div class="map-bg">
+              <div class="map-grid"></div>
+              <!-- Animated route line -->
+              <svg class="map-route-svg" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#10B981;stop-opacity:1" />
+                  </linearGradient>
+                </defs>
+                <path class="route-path" d="M 60 200 C 100 160, 150 180, 200 140 C 250 100, 300 120, 340 80"
+                  stroke="url(#routeGrad)" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="600" stroke-dashoffset="600" />
+                <circle cx="60" cy="200" r="8" fill="#2563EB" />
+                <circle cx="340" cy="80" r="8" fill="#10B981" />
+                <circle class="moving-dot" cx="60" cy="200" r="5" fill="white" stroke="#2563EB" stroke-width="2" />
+              </svg>
+            </div>
+            <div class="map-overlay-text">
+              <i class="fa-solid fa-map"></i>
+              <p>Live map preview</p>
+              <span>Enter locations to see route</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats cards -->
+        <div class="stats-row">
+          <div class="stat-card card">
+            <i class="fa-solid fa-road"></i>
+            <div>
+              <p id="estDistance" class="stat-val">-- km</p>
+              <p class="stat-label">Distance</p>
+            </div>
+          </div>
+          <div class="stat-card card">
+            <i class="fa-solid fa-clock"></i>
+            <div>
+              <p id="estTime" class="stat-val">-- min</p>
+              <p class="stat-label">Est. Time</p>
+            </div>
+          </div>
+          <div class="stat-card card">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+            <div>
+              <p id="estFare" class="stat-val">₹--</p>
+              <p class="stat-label">Fare</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---- RIDE HISTORY PAGE ---- -->
+  <div id="rideHistory" class="page hidden">
+    <div class="page-header">
+      <div>
+        <h2>Ride History</h2>
+        <p class="greeting">Your recent journeys</p>
+      </div>
+      <button class="btn-outline" onclick="clearHistory()">
+        <i class="fa-solid fa-trash"></i> Clear All
+      </button>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="history-summary">
+      <div class="summary-card card">
+        <i class="fa-solid fa-route"></i>
+        <div>
+          <p id="totalRides" class="stat-val">0</p>
+          <p class="stat-label">Total Rides</p>
+        </div>
+      </div>
+      <div class="summary-card card">
+        <i class="fa-solid fa-indian-rupee-sign"></i>
+        <div>
+          <p id="totalSpent" class="stat-val">₹0</p>
+          <p class="stat-label">Total Spent</p>
+        </div>
+      </div>
+      <div class="summary-card card">
+        <i class="fa-solid fa-road"></i>
+        <div>
+          <p id="totalKm" class="stat-val">0 km</p>
+          <p class="stat-label">Total Distance</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterHistory('all', this)">All</button>
+      <button class="filter-btn" onclick="filterHistory('completed', this)">Completed</button>
+      <button class="filter-btn" onclick="filterHistory('cancelled', this)">Cancelled</button>
+    </div>
+
+    <div id="historyList" class="history-list">
+      <!-- Dynamically populated -->
+    </div>
+
+    <div id="emptyHistory" class="empty-state hidden">
+      <i class="fa-solid fa-ghost"></i>
+      <p>No rides yet!</p>
+      <span>Book your first ride and it'll show up here.</span>
+      <button class="btn-primary" onclick="showPage('bookRide')">Book a Ride</button>
+    </div>
+  </div>
+
+  <!-- ---- USER PROFILE PAGE ---- -->
+  <div id="userProfile" class="page hidden">
+    <div class="page-header">
+      <h2>My Profile</h2>
+    </div>
+    <div class="profile-grid">
+      <div class="profile-card card">
+        <div class="avatar-wrap">
+          <div class="avatar" id="avatarCircle"></div>
+          <button class="avatar-edit"><i class="fa-solid fa-camera"></i></button>
+        </div>
+        <h3 id="profileName"></h3>
+        <p id="profileEmail" class="profile-email"></p>
+        <div class="profile-badge"><i class="fa-solid fa-shield-halved"></i> Verified Rider</div>
+      </div>
+
+      <div class="profile-details card">
+        <h3>Account Details</h3>
+        <div class="detail-row">
+          <i class="fa-solid fa-user"></i>
+          <div><p class="dr-label">Full Name</p><p class="dr-val" id="detailName"></p></div>
+        </div>
+        <div class="detail-row">
+          <i class="fa-solid fa-envelope"></i>
+          <div><p class="dr-label">Email</p><p class="dr-val" id="detailEmail"></p></div>
+        </div>
+        <div class="detail-row">
+          <i class="fa-solid fa-phone"></i>
+          <div><p class="dr-label">Phone</p><p class="dr-val" id="detailPhone"></p></div>
+        </div>
+        <div class="detail-row">
+          <i class="fa-solid fa-calendar"></i>
+          <div><p class="dr-label">Member Since</p><p class="dr-val" id="detailJoined"></p></div>
+        </div>
+
+        <button class="btn-danger" onclick="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ===================== DRIVER DASHBOARD ===================== -->
+<section id="driverDashboard" class="dashboard hidden">
+  <nav class="navbar navbar--driver">
+    <div class="nav-brand">
+      <i class="fa-solid fa-bolt"></i>
+      <span>RideWave <span class="driver-badge-nav">Driver</span></span>
+    </div>
+    <div class="driver-online-toggle">
+      <span id="onlineLabel">Offline</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="driverOnline" onchange="toggleDriverOnline()" />
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+    <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+  </nav>
+
+  <div class="driver-layout">
+    <!-- Left: Incoming ride + controls -->
+    <div class="driver-left">
+      <!-- Stats -->
+      <div class="driver-stats">
+        <div class="dstat card">
+          <i class="fa-solid fa-indian-rupee-sign"></i>
+          <div>
+            <p id="driverEarnings" class="stat-val">₹0</p>
+            <p class="stat-label">Today's Earnings</p>
+          </div>
+        </div>
+        <div class="dstat card">
+          <i class="fa-solid fa-car-side"></i>
+          <div>
+            <p id="driverTrips" class="stat-val">0</p>
+            <p class="stat-label">Trips Today</p>
+          </div>
+        </div>
+        <div class="dstat card">
+          <i class="fa-solid fa-star"></i>
+          <div>
+            <p id="driverRating" class="stat-val">4.8</p>
+            <p class="stat-label">Rating</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Incoming ride panel -->
+      <div id="incomingRidePanel" class="incoming-ride card hidden">
+        <div class="incoming-header">
+          <div class="ping-dot"></div>
+          <h3>New Ride Request!</h3>
+        </div>
+        <div class="ride-info-row">
+          <div class="ride-info-item">
+            <i class="fa-solid fa-location-dot" style="color:var(--primary)"></i>
+            <div>
+              <p class="ri-label">Pickup</p>
+              <p class="ri-val" id="driverPickup"></p>
+            </div>
+          </div>
+          <div class="ride-info-item">
+            <i class="fa-solid fa-flag-checkered" style="color:var(--secondary)"></i>
+            <div>
+              <p class="ri-label">Drop</p>
+              <p class="ri-val" id="driverDrop"></p>
+            </div>
+          </div>
+        </div>
+        <div class="ride-fare-row">
+          <span><i class="fa-solid fa-road"></i> <span id="driverDist"></span></span>
+          <span class="fare-big" id="driverFare"></span>
+        </div>
+        <div class="rider-info">
+          <div class="rider-avatar" id="riderAvatarDriver"></div>
+          <div>
+            <p class="rider-name" id="riderNameDriver"></p>
+            <div class="stars">★★★★★</div>
+          </div>
+          <span class="payment-tag" id="driverPayment"></span>
+        </div>
+        <div class="ride-action-btns">
+          <button class="btn-reject" onclick="driverAction('reject')">
+            <i class="fa-solid fa-xmark"></i> Decline
+          </button>
+          <button class="btn-accept" onclick="driverAction('accept')">
+            <i class="fa-solid fa-check"></i> Accept
+          </button>
+        </div>
+        <div class="countdown-bar"><div class="countdown-fill" id="countdownFill"></div></div>
+      </div>
+
+      <!-- Active ride panel -->
+      <div id="activeRidePanel" class="active-ride card hidden">
+        <h3><i class="fa-solid fa-car-side"></i> Ride in Progress</h3>
+        <div class="active-ride-locs">
+          <p><i class="fa-solid fa-location-dot" style="color:var(--primary)"></i> <span id="activePickup"></span></p>
+          <p><i class="fa-solid fa-flag-checkered" style="color:var(--secondary)"></i> <span id="activeDrop"></span></p>
+        </div>
+        <div class="ride-status-track">
+          <div class="rst-step active" id="rst1"><i class="fa-solid fa-car"></i><span>En Route</span></div>
+          <div class="rst-line"></div>
+          <div class="rst-step" id="rst2"><i class="fa-solid fa-user"></i><span>Picked Up</span></div>
+          <div class="rst-line"></div>
+          <div class="rst-step" id="rst3"><i class="fa-solid fa-flag-checkered"></i><span>Dropped</span></div>
+        </div>
+        <button class="btn-primary btn-full" id="activeRideBtn" onclick="advanceRideStatus()">
+          Arrived at Pickup
+        </button>
+      </div>
+
+      <!-- Idle state -->
+      <div id="driverIdle" class="driver-idle card">
+        <i class="fa-solid fa-moon"></i>
+        <p>You're offline</p>
+        <span>Go online to start receiving ride requests</span>
+      </div>
+    </div>
+
+    <!-- Right: Map + recent trips -->
+    <div class="driver-right">
+      <div class="map-card card" style="height:260px">
+        <div class="map-placeholder">
+          <div class="map-bg">
+            <div class="map-grid"></div>
+            <svg class="map-route-svg" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 40 220 Q 200 80 360 40" stroke="#2563EB" stroke-width="3" fill="none" stroke-dasharray="8 4" opacity="0.4"/>
+            </svg>
+          </div>
+          <div class="map-overlay-text">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <p>Driver's Map View</p>
+            <span id="driverMapStatus">Waiting for rides...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px">
+        <h3 style="margin-bottom:16px;font-family:var(--font-display)">Recent Trips</h3>
+        <div id="driverHistory" class="driver-history-list">
+          <div class="empty-small"><i class="fa-solid fa-inbox"></i> No trips yet today</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RIDE STATUS TRACKER (User side) ===================== -->
+<div id="rideTrackerOverlay" class="tracker-overlay hidden">
+  <div class="tracker-card">
+    <div class="tracker-header">
+      <h3>Your Ride</h3>
+      <button class="tracker-close" onclick="closeTracker()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="tracker-status-bar">
+      <div class="ts-step active" id="ts1">
+        <div class="ts-dot"></div>
+        <span>Requested</span>
+      </div>
+      <div class="ts-line" id="tsl1"></div>
+      <div class="ts-step" id="ts2">
+        <div class="ts-dot"></div>
+        <span>Accepted</span>
+      </div>
+      <div class="ts-line" id="tsl2"></div>
+      <div class="ts-step" id="ts3">
+        <div class="ts-dot"></div>
+        <span>En Route</span>
+      </div>
+      <div class="ts-line" id="tsl3"></div>
+      <div class="ts-step" id="ts4">
+        <div class="ts-dot"></div>
+        <span>Completed</span>
+      </div>
+    </div>
+
+    <div class="tracker-info">
+      <div class="tracker-driver">
+        <div class="td-avatar" id="trackerDriverAvatar"></div>
+        <div>
+          <p class="td-name" id="trackerDriverName">Finding driver...</p>
+          <p class="td-vehicle" id="trackerVehicle"></p>
+        </div>
+        <div class="td-rating"><i class="fa-solid fa-star"></i> 4.8</div>
+      </div>
+
+      <div class="tracker-locs">
+        <div class="tl-row">
+          <i class="fa-solid fa-location-dot" style="color:var(--primary)"></i>
+          <p id="trackerPickup"></p>
+        </div>
+        <div class="tl-row">
+          <i class="fa-solid fa-flag-checkered" style="color:var(--secondary)"></i>
+          <p id="trackerDrop"></p>
+        </div>
+      </div>
+
+      <div class="tracker-fare-row">
+        <span id="trackerFareLabel">Estimated Fare</span>
+        <span class="tracker-fare" id="trackerFare"></span>
+      </div>
+
+      <div id="trackerStatusMsg" class="tracker-msg">
+        <div class="pulse-dot"></div>
+        <span id="trackerMsgText">Searching for nearby drivers...</span>
+      </div>
+    </div>
+
+    <button class="btn-danger btn-full" id="cancelRideBtn" onclick="cancelRide()">
+      <i class="fa-solid fa-ban"></i> Cancel Ride
+    </button>
+  </div>
+</div>
+
+<!-- ===================== CONFIRM MODAL ===================== -->
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('confirmModal')"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fa-solid fa-route"></i></div>
+      <h3>Confirm Your Ride</h3>
+    </div>
+
+    <div class="confirm-details">
+      <div class="cd-row">
+        <div class="cd-loc">
+          <div class="cd-dot cd-dot--pickup"></div>
+          <div>
+            <p class="cd-label">From</p>
+            <p class="cd-val" id="confirmPickup"></p>
+          </div>
+        </div>
+      </div>
+      <div class="cd-row">
+        <div class="cd-loc">
+          <div class="cd-dot cd-dot--drop"></div>
+          <div>
+            <p class="cd-label">To</p>
+            <p class="cd-val" id="confirmDrop"></p>
+          </div>
+        </div>
+      </div>
+      <div class="confirm-meta">
+        <div class="cm-item">
+          <i class="fa-solid fa-motorcycle"></i>
+          <div><p class="cm-label">Ride Type</p><p class="cm-val" id="confirmType"></p></div>
+        </div>
+        <div class="cm-item">
+          <i class="fa-solid fa-road"></i>
+          <div><p class="cm-label">Distance</p><p class="cm-val" id="confirmDist"></p></div>
+        </div>
+        <div class="cm-item">
+          <i class="fa-solid fa-clock"></i>
+          <div><p class="cm-label">Est. Time</p><p class="cm-val" id="confirmTime"></p></div>
+        </div>
+        <div class="cm-item">
+          <i class="fa-solid fa-wallet"></i>
+          <div><p class="cm-label">Payment</p><p class="cm-val" id="confirmPayment"></p></div>
+        </div>
+      </div>
+      <div class="confirm-fare">
+        <span>Total Fare</span>
+        <span class="fare-big" id="confirmFare"></span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal('confirmModal')">Edit</button>
+      <button class="btn-primary" onclick="confirmBooking()">
+        <i class="fa-solid fa-bolt"></i> Confirm Booking
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== RATING MODAL ===================== -->
+<div id="ratingModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-icon" style="background:var(--secondary-light);color:var(--secondary)">
+        <i class="fa-solid fa-star"></i>
+      </div>
+      <h3>Rate Your Ride</h3>
+      <p style="color:var(--text-muted);margin-top:4px;font-size:.9rem">How was your experience?</p>
+    </div>
+
+    <div class="rating-driver-info">
+      <div class="rating-avatar" id="ratingAvatar"></div>
+      <div>
+        <p id="ratingDriverName" class="rating-driver-name"></p>
+        <p style="font-size:.85rem;color:var(--text-muted)">Your Driver</p>
+      </div>
+    </div>
+
+    <div class="star-rating" id="starRating">
+      <i class="fa-solid fa-star" data-val="1" onclick="setRating(1)"></i>
+      <i class="fa-solid fa-star" data-val="2" onclick="setRating(2)"></i>
+      <i class="fa-solid fa-star" data-val="3" onclick="setRating(3)"></i>
+      <i class="fa-solid fa-star" data-val="4" onclick="setRating(4)"></i>
+      <i class="fa-solid fa-star" data-val="5" onclick="setRating(5)"></i>
+    </div>
+    <p id="ratingLabel" class="rating-label">Tap to rate</p>
+
+    <textarea id="ratingComment" class="rating-comment" placeholder="Add a comment (optional)..."></textarea>
+
+    <button class="btn-primary btn-full" onclick="submitRating()">
+      <i class="fa-solid fa-paper-plane"></i> Submit Rating
+    </button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
